@@ -148,9 +148,9 @@ node('vets-website-linting') {
   }
 
   stage('Deploy') {
-    if (!isDeployable()) {
-      return
-    } 
+//    if (!isDeployable()) {
+//      return
+//    } 
 
     def targets = [
       'master': [
