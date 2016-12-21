@@ -47,22 +47,6 @@ node('vets-website-linting') {
     args = "-u root:root -v ${pwd()}/build:/application/build -v ${pwd()}/logs:/application/logs"
   }
 
-  stage('Sanity') {
-    dockerImage.inside(args) {
-      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
-                          usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-        sh "echo $AWS_ACCESS_KEY_ID | md5sum"
-        sh "echo '' | md5sum"
-      }
-    }
-
-    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
-                        usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-      sh "echo $AWS_ACCESS_KEY_ID | md5sum"
-        sh "echo '' | md5sum"
-    }
-  }
-/*
   // Check package.json for known vulnerabilities
 
   stage('Security') {
@@ -190,7 +174,7 @@ node('vets-website-linting') {
       builds[target['bucket']] = {
         dockerImage.inside(args) {
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
-                              usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                              usernameVariable: 'AWS_ACCESS_KEY', passwordVariable: 'AWS_SECRET_KEY']]) {
           sh "s3-cli sync --acl-public --delete-removed --recursive --region us-gov-west-1 /application/build/${target['build']} s3://${target['bucket']}/"
           }
         }
@@ -199,5 +183,4 @@ node('vets-website-linting') {
 
     parallel builds
   } 
-*/
 }
