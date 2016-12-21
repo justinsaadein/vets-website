@@ -15,6 +15,12 @@ def isProtectedMergePreviouslyTested = {
     env.BRANCH_NAME == 'production')
 }
 
+def isDeployable = {
+  (env.BRANCH_NAME == 'master' ||
+    env.BRANCH_NAME == 'production') &&
+    !env.CHANGE_TARGET
+}
+
 def buildDetails = { vars ->
   """
     BUILDTYPE=${vars['buildtype']}
@@ -84,6 +90,7 @@ node('vets-website-linting') {
     parallel builds
   }
 
+/*
   // Run unit tests for each build type
 
   stage('Unit') {
@@ -139,4 +146,43 @@ node('vets-website-linting') {
       sh "cd /application && npm --no-color run test:accessibility"
     }
   }
+*/
+
+  stage('Deploy') {
+    /*
+    if (!isDeployable()) {
+      return
+    } 
+    */
+
+    def targets = [
+      'master': [
+        [ 'build': 'development', 'bucket': 'dev.vets.gov' ],
+        [ 'build': 'staging', 'bucket': 'staging.vets.gov' ],
+      ],
+
+      'production': [
+        [ 'build': 'production', 'bucket': 'www.vets.gov' ]
+      ],
+    ][env.BRANCH_NAME]
+
+    def builds = [:]
+
+    targets = [
+      ['build': 'development', 'bucket': 'dev.vets.gov' ],
+    ] // TODO: for testing
+
+    for (int i=0; i<targets.size(); i++) {
+      def target = targets.get(i)
+
+      builds[target['bucket']] = {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
+                            usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+          dockerImage.inside(args) {
+            sh "s3-cli sync --acl-public --delete-removed --recursive --region us-gov-west-1 /application/build/${target['build']} s3://${target['bucket']}/"
+          }
+        }
+      }
+    }
+  } 
 }
