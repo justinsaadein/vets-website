@@ -1,6 +1,7 @@
 /* eslint-disable camelcase, strict */
 'use strict';
 
+
 require('babel-core/register');
 
 const glob = require('glob');
@@ -11,10 +12,9 @@ module.exports = {
   src_folders: ['./test'],
   output_folder: './logs/nightwatch',
   custom_commands_path: './test/util/nightwatch-commands',
-  live_output: true,
-  parallel_process_delay: 10,
+  live_output: false,
+  parallel_process_delay: 100,
   disable_colors: false,
-  test_workers: false,
   test_settings: {
     'default': {
       launch_url: `localhost:${process.env.WEB_PORT || 3333}`,
@@ -25,12 +25,11 @@ module.exports = {
       silent: true,
       output: true,
       screenshots: {
-        enabled: true,
+        enabled: false,
         on_failure: true,
         path: 'logs/screenshots'
       },
       desiredCapabilities: {
-        // browserName: 'firefox',
         browserName: 'phantomjs',
         javascriptEnabled: true,
         acceptSslCerts: true,
@@ -39,6 +38,7 @@ module.exports = {
         // 'phantomjs.cli.args' : ['--remote-debugger-port=9001', '--remote-debugger-autorun=yes']
       },
       globals: {
+        waitForConditionPollInterval: 35,
       },
       selenium: {
         start_process: true,
@@ -47,7 +47,13 @@ module.exports = {
         log_path: './logs/selenium',
         host: '127.0.0.1',
         port: selenium_server_port,
-      }
+        cli_args: {
+        },
+      },
+      test_workers: {
+        enabled: true,
+        workers: 10,
+      },
     },
 
     accessibility: {
@@ -61,7 +67,11 @@ module.exports = {
         acceptSslCerts: true,
         webStorageEnabled: true,
         'phantomjs.binary.path': require('phantomjs-prebuilt').path
-      }
+      },
+      test_workers: {
+        enabled: true,
+        workers: 4,
+      },
     }
   }
 };
