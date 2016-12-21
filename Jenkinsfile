@@ -176,10 +176,10 @@ node('vets-website-linting') {
       def target = targets.get(i)
 
       builds[target['bucket']] = {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
-                            usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-          dockerImage.inside(args) {
-            sh "s3-cli sync --acl-public --delete-removed --recursive --region us-gov-west-1 /application/build/${target['build']} s3://${target['bucket']}/"
+        dockerImage.inside(args) {
+          withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
+                              usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+          sh "s3-cli sync --acl-public --delete-removed --recursive --region us-gov-west-1 /application/build/${target['build']} s3://${target['bucket']}/"
           }
         }
       }
