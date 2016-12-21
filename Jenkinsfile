@@ -47,6 +47,20 @@ node('vets-website-linting') {
     args = "-u root:root -v ${pwd()}/build:/application/build -v ${pwd()}/logs:/application/logs"
   }
 
+  stage('Sanity') {
+    dockerImage.inside(args) {
+      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
+                          usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        sh "echo $AWS_ACCESS_KEY_ID"
+      }
+    }
+
+    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
+                        usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+      sh "echo $AWS_ACCESS_KEY_ID"
+    }
+  }
+/*
   // Check package.json for known vulnerabilities
 
   stage('Security') {
@@ -90,7 +104,6 @@ node('vets-website-linting') {
     parallel builds
   }
 
-/*
   // Run unit tests for each build type
 
   stage('Unit') {
@@ -146,14 +159,11 @@ node('vets-website-linting') {
       sh "cd /application && npm --no-color run test:accessibility"
     }
   }
-*/
 
   stage('Deploy') {
-    /*
     if (!isDeployable()) {
       return
     } 
-    */
 
     def targets = [
       'master': [
@@ -187,4 +197,5 @@ node('vets-website-linting') {
 
     parallel builds
   } 
+*/
 }
