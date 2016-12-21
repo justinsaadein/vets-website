@@ -51,13 +51,15 @@ node('vets-website-linting') {
     dockerImage.inside(args) {
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
                           usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-        sh "echo $AWS_ACCESS_KEY_ID"
+        sh "echo $AWS_ACCESS_KEY_ID | md5sum"
+        sh "echo '' | md5sum"
       }
     }
 
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'vets-website-s3',
                         usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-      sh "echo $AWS_ACCESS_KEY_ID"
+      sh "echo $AWS_ACCESS_KEY_ID | md5sum"
+        sh "echo '' | md5sum"
     }
   }
 /*
