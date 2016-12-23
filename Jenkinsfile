@@ -81,7 +81,6 @@ node('vets-website-linting') {
     }
   }
 
-/*
   // Perform a build for each required build type
 
   stage('Build') {
@@ -89,8 +88,9 @@ node('vets-website-linting') {
       return
     }
 
-    Set buildSet = ['production']
+    def Set buildSet = ['production']
 
+/*
     if (isContentTeamUpdate()) {
       buildSet = ['development']
     }
@@ -115,7 +115,10 @@ node('vets-website-linting') {
     }
 
     parallel builds
+*/
   }
+
+/*
 
   // Run integration tests for each build type
 
