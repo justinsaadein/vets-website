@@ -59,6 +59,7 @@ node('vets-website-linting') {
     }
   }
 
+/*
   // Check source for syntax issues
 
   stage('Lint') {
@@ -169,4 +170,5 @@ node('vets-website-linting') {
 
     parallel builds
   } 
+*/
 }
