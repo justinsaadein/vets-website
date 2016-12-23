@@ -115,7 +115,7 @@ node('vets-website-linting') {
 
     parallel builds
   }
-
+/*
   // Run integration tests for each build type
 
   stage('Integration') {
@@ -171,4 +171,5 @@ node('vets-website-linting') {
 
     parallel builds
   } 
+*/
 }
