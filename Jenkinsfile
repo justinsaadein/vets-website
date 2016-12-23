@@ -76,7 +76,9 @@ node('vets-website-linting') {
       return
     }
 
-    sh "cd /application && npm --no-color run test:unit"
+    dockerImage.inside(args) {
+      sh "cd /application && npm --no-color run test:unit"
+    }
   }
 
   // Perform a build for each required build type
