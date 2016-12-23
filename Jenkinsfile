@@ -101,13 +101,19 @@ node('vets-website-linting') {
 
     def builds = [:]
 
-    for (int i=0; i<buildList.size(); i++) {
-      def envName = buildList.get(i)
+    for (int i=0; i<envNames.size(); i++) {
+      def envName = envNames.get(i)
 
-      builds[envName] = {
-        dockerImage.inside(args) {
-          sh "cd /application && npm --no-color run build -- --buildtype=${envName}"
-          sh "cd /application && echo \"${buildDetails('buildtype': envName)}\" > build/${envName}/BUILD.txt" 
+      if (buildList.contains(envName)) {
+        builds[envName] = {
+          dockerImage.inside(args) {
+            sh "cd /application && npm --no-color run build -- --buildtype=${envName}"
+            sh "cd /application && echo \"${buildDetails('buildtype': envName)}\" > build/${envName}/BUILD.txt" 
+          }
+        }
+      } else {
+        builds[envName] = {
+          println "Build '${envName}' not required, skipped."
         }
       }
     }
