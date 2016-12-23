@@ -122,22 +122,21 @@ node('vets-website-linting') {
       return
     }
 
-    parallel [
-      'e2e': {
+    parallel (
+      e2e: {
         dockerImage.inside(args + " -e BUILDTYPE=production") {
           sh "cd /application && npm --no-color run test:e2e"
         }
       },
 
-      'accessibility': {
+      accessibility: {
         dockerImage.inside(args + " -e BUILDTYPE=production") {
           sh "cd /application && npm --no-color run test:accessibility"
         }
-      },
-    ]
+      }
+    )
   }
 
-/*
   stage('Deploy') {
     if (!isDeployable()) {
       return
@@ -171,5 +170,4 @@ node('vets-website-linting') {
 
     parallel builds
   } 
-*/
 }
