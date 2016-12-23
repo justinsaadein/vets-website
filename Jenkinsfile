@@ -121,7 +121,7 @@ node('vets-website-linting') {
     parallel builds
   }
 
-  // Run integration tests for each build type
+  // Run E2E and accessibility tests
 
   stage('Integration') {
     if (isContentTeamUpdate() || isPushNotificationOnFeature()) {
