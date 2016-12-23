@@ -114,7 +114,7 @@ node('vets-website-linting') {
 
     parallel builds
   }
-/*
+
   // Run integration tests for each build type
 
   stage('Integration') {
@@ -122,7 +122,7 @@ node('vets-website-linting') {
       return
     }
 
-    parallel([
+    parallel [
       'e2e': {
         dockerImage.inside(args + " -e BUILDTYPE=production") {
           sh "cd /application && npm --no-color run test:e2e"
@@ -134,9 +134,10 @@ node('vets-website-linting') {
           sh "cd /application && npm --no-color run test:accessibility"
         }
       },
-    ])
+    ]
   }
 
+/*
   stage('Deploy') {
     if (!isDeployable()) {
       return
