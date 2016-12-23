@@ -2,7 +2,6 @@ def envNames = ['development', 'staging', 'production']
 
 env.NODE_ENV = 'production'
 
-
 def isPushNotificationOnFeature = {
   !env.CHANGE_TARGET && !['master', 'production'].contains(env.BRANCH_NAME)
 }
