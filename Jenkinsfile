@@ -88,18 +88,17 @@ node('vets-website-linting') {
       return
     }
 
-    def Set buildSet = ['production']
+    def buildList = ['production']
 
     if (isContentTeamUpdate()) {
-      buildSet = ['development']
+      buildList = ['development']
     }
 
     if (env.BRANCH_NAME == 'master') {
-      buildSet << 'development'
-      buildSet << 'staging'
+      buildList << 'development'
+      buildList << 'staging'
     }
 
-    def buildList = buildSet.toList()
     def builds = [:]
 
     for (int i=0; i<buildList.size(); i++) {
@@ -123,7 +122,7 @@ node('vets-website-linting') {
       return
     }
 
-    parallel [
+    parallel([
       'e2e': {
         dockerImage.inside(args + " -e BUILDTYPE=production") {
           sh "cd /application && npm --no-color run test:e2e"
@@ -135,7 +134,7 @@ node('vets-website-linting') {
           sh "cd /application && npm --no-color run test:accessibility"
         }
       },
-    ]
+    ])
   }
 
   stage('Deploy') {
