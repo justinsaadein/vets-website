@@ -11,11 +11,6 @@ def isContentTeamUpdate = {
   env.BRANCH_NAME ==~ /^content\/wip\/.*/
 }
 
-def isProtectedMergePreviouslyTested = {
-  (env.BRANCH_NAME == 'master' ||
-    env.BRANCH_NAME == 'production')
-}
-
 def isDeployable = {
   (env.BRANCH_NAME == 'master' ||
     env.BRANCH_NAME == 'production') &&
@@ -39,6 +34,10 @@ node('vets-website-linting') {
   // Checkout source, create output directories, build container
 
   stage('Setup') {
+    if (isPushNotificationOnFeature()) {
+      return
+    }
+
     checkout scm
 
     sh "mkdir -p build"
@@ -51,6 +50,10 @@ node('vets-website-linting') {
   // Check package.json for known vulnerabilities
 
   stage('Security') {
+    if (isContentTeamUpdate() || isPushNotificationOnFeature()) {
+      return
+    }
+
     dockerImage.inside(args) {
       sh "cd /application && nsp check" 
     }
@@ -59,26 +62,46 @@ node('vets-website-linting') {
   // Check source for syntax issues
 
   stage('Lint') {
+    if (isContentTeamUpdate() || isPushNotificationOnFeature()) {
+      return
+    }
+
     dockerImage.inside(args) {
       sh "cd /application && npm --no-color run lint"
     }
   }
 
-  // Perform a build for each required build type
-
-  stage('Build') {
-    if (isContentTeamUpdate()) {
-      dockerImage.inside(args) {
-        sh "cd /application && npm --no-color run build -- --buildtype=development"
-      }
-
+  stage('Unit') {
+    if (isContentTeamUpdate() || isPushNotificationOnFeature()) {
       return
     }
 
+    sh "cd /application && npm --no-color run test:unit"
+  }
+
+  // Perform a build for each required build type
+
+  stage('Build') {
+    if (isPushNotificationOnFeature()) {
+      return
+    }
+
+    Set buildSet = ['production']
+
+    if (isContentTeamUpdate()) {
+      buildSet = ['development']
+    }
+
+    if (env.BRANCH_NAME == 'master') {
+      buildSet << 'development'
+      buildSet << 'staging'
+    }
+
+    def buildList = buildSet.toList()
     def builds = [:]
 
-    for (int i=0; i<envNames.size(); i++) {
-      def envName = envNames.get(i)
+    for (int i=0; i<buildList.size(); i++) {
+      def envName = buildList.get(i)
 
       builds[envName] = {
         dockerImage.inside(args) {
@@ -91,66 +114,32 @@ node('vets-website-linting') {
     parallel builds
   }
 
-  // Run unit tests for each build type
-
-  stage('Unit') {
-    if (isContentTeamUpdate() || isPushNotificationOnFeature()) {
-      return
-    }
-
-    def builds = [:]
-
-    for (int i=0; i<envNames.size(); i++) {
-      def envName = envNames.get(i)
-
-      builds[envName] = {
-        dockerImage.inside(args + " -e BUILDTYPE=${envName}") {
-          sh "cd /application && npm --no-color run test:unit"
-        }
-      }
-    }
-
-    parallel builds
-  }
-
   // Run integration tests for each build type
 
-  stage('E2E') {
+  stage('Integration') {
     if (isContentTeamUpdate() || isPushNotificationOnFeature()) {
       return
     }
 
-    def builds = [:]
-
-    for (int i=0; i<envNames.size(); i++) {
-      def envName = envNames.get(i)
-
-      builds[envName] = {
-        dockerImage.inside(args + " -e BUILDTYPE=${envName}") {
+    parallel [
+      'e2e': {
+        dockerImage.inside(args + " -e BUILDTYPE=production") {
           sh "cd /application && npm --no-color run test:e2e"
         }
-      }
-    }
+      },
 
-    parallel builds
-  }
-
-  // Run accessibility tests for the development build type
-
-  stage('Accessibility') {
-    if (isContentTeamUpdate() || isPushNotificationOnFeature()) {
-      return
-    }
-
-    dockerImage.inside(args + " -e BUILDTYPE=development") {
-      sh "cd /application && npm --no-color run test:accessibility"
-    }
+      'accessibility': {
+        dockerImage.inside(args + " -e BUILDTYPE=production") {
+          sh "cd /application && npm --no-color run test:accessibility"
+        }
+      },
+    ]
   }
 
   stage('Deploy') {
-//    if (!isDeployable()) {
-//      return
-//    } 
+    if (!isDeployable()) {
+      return
+    } 
 
     def targets = [
       'master': [
@@ -164,10 +153,6 @@ node('vets-website-linting') {
     ][env.BRANCH_NAME]
 
     def builds = [:]
-
-    targets = [
-      ['build': 'development', 'bucket': 'dev.vets.gov' ],
-    ] // TODO: for testing
 
     for (int i=0; i<targets.size(); i++) {
       def target = targets.get(i)
