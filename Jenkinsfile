@@ -141,6 +141,8 @@ node('vets-website-linting') {
         }
       }
     )
+
+    step([$class: 'JUnitResultArchiver', testResults: 'logs/nightwatch/**/*.xml'])
   }
 
   stage('Deploy') {
