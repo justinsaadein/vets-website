@@ -81,6 +81,7 @@ node('vets-website-linting') {
     }
   }
 
+/*
   // Perform a build for each required build type
 
   stage('Build') {
@@ -171,4 +172,5 @@ node('vets-website-linting') {
 
     parallel builds
   } 
+*/
 }
