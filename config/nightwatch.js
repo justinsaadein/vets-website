@@ -34,8 +34,7 @@ module.exports = {
         javascriptEnabled: true,
         acceptSslCerts: true,
         webStorageEnabled: true,
-        'phantomjs.binary.path': require('phantomjs-prebuilt').path
-        // 'phantomjs.cli.args' : ['--remote-debugger-port=9001', '--remote-debugger-autorun=yes']
+        'phantomjs.binary.path': require('phantomjs-prebuilt').path,
       },
       globals: {
         waitForConditionPollInterval: 35,
@@ -47,12 +46,11 @@ module.exports = {
         log_path: './logs/selenium',
         host: '127.0.0.1',
         port: selenium_server_port,
-        cli_args: {
-        },
       },
+      cli_args: { },
       test_workers: {
         enabled: true,
-        workers: 1,
+        workers: 10,
       },
     },
 
@@ -70,7 +68,7 @@ module.exports = {
       },
       test_workers: {
         enabled: true,
-        workers: 4,
+        workers: 10,
       },
     }
   }
