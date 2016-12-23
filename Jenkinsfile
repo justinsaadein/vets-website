@@ -94,7 +94,6 @@ node('vets-website-linting') {
       buildSet = ['development']
     }
 
-/*
     if (env.BRANCH_NAME == 'master') {
       buildSet << 'development'
       buildSet << 'staging'
@@ -115,10 +114,7 @@ node('vets-website-linting') {
     }
 
     parallel builds
-*/
   }
-
-/*
 
   // Run integration tests for each build type
 
@@ -175,5 +171,4 @@ node('vets-website-linting') {
 
     parallel builds
   } 
-*/
 }
