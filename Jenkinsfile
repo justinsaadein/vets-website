@@ -90,11 +90,11 @@ node('vets-website-linting') {
 
     def Set buildSet = ['production']
 
-/*
     if (isContentTeamUpdate()) {
       buildSet = ['development']
     }
 
+/*
     if (env.BRANCH_NAME == 'master') {
       buildSet << 'development'
       buildSet << 'staging'
