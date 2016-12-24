@@ -1,6 +1,5 @@
 def envNames = ['development', 'staging', 'production']
 
-
 env.NODE_ENV = 'production'
 
 def isPushNotificationOnFeature = {
